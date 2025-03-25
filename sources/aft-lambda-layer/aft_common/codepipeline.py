@@ -42,7 +42,8 @@ def get_pipeline_for_account(session: Session, account_id: str) -> str:
                 if t["key"] == "managed_by" and t["value"] == "AFT":
                     pipeline_name: str = p["name"]
                     return pipeline_name
-    raise Exception("Pipelines for account id " + account_id + " was not found")
+                    
+    logger.warn("Pipelines for account id " + account_id + " was not found")
 
 
 def pipeline_is_running(session: Session, name: str) -> bool:
@@ -140,10 +141,12 @@ def delete_customization_pipeline(
     pipeline_name = get_pipeline_for_account(
         session=aft_management_session, account_id=account_id
     )
-    if not pipeline_is_running(session=aft_management_session, name=pipeline_name):
-        client.delete_pipeline(name=pipeline_name)
-        logger.info(f"Deleted customization pipeline for {account_id}")
-    else:
-        logger.warning(
-            f"Cannot delete running customization pipeline: {pipeline_name}, skipping"
-        )
+    if pipeline_name:
+        if not pipeline_is_running(session=aft_management_session, name=pipeline_name):
+            client.delete_pipeline(name=pipeline_name)
+            logger.info(f"Deleted customization pipeline for {account_id}")
+        else:
+            logger.warning(
+                f"Cannot delete running customization pipeline: {pipeline_name}, skipping"
+            )
+        
