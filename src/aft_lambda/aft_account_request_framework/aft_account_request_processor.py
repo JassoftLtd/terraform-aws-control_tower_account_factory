@@ -39,6 +39,8 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
     auth = AuthClient()
     threshold = int(os.environ["AFT_PROVISIONING_CONCURRENCY"])
 
+
+
     try:
         account_request = AccountRequest(auth=auth)
         try:
@@ -53,19 +55,27 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         )
 
         if account_request.provisioning_threshold_reached(threshold=threshold):
-            logger.info("Concurrent account provisioning threshold reached, exiting")
-            return None
+            raise Exception("Concurrent account provisioning threshold reached, exiting")
         else:
-            sqs_message = sqs.receive_sqs_message(
-                aft_management_session,
-                aft_common.ssm.get_ssm_parameter_value(
-                    aft_management_session, utils.SSM_PARAM_ACCOUNT_REQUEST_QUEUE
-                ),
-            )
+            event_source = False
+            if event and len(event.get("Records", [])) > 0:
+                event_source = True
+                logger.info("Lambda invoked by SQS")
+                sqs_message = event["Records"][0]
+                sqs_body = json.loads(sqs_message["body"])
+            else:
+                logger.info("Message received from SQS")
+                sqs_message = sqs.receive_sqs_message(
+                    aft_management_session,
+                    aft_common.ssm.get_ssm_parameter_value(
+                        aft_management_session, utils.SSM_PARAM_ACCOUNT_REQUEST_QUEUE
+                    ),
+                )
+                sqs_body = json.loads(sqs_message["Body"])
+
             if sqs_message is not None:
                 aft_metrics = AFTMetrics()
 
-                sqs_body = json.loads(sqs_message["Body"])
                 ct_request_is_valid = True
                 if sqs_body["operation"] == "ADD":
                     ct_request_is_valid = new_ct_request_is_valid(
@@ -112,7 +122,9 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
                     logger.info("Unknown operation received in message")
                     raise RuntimeError("Unknown operation received in message")
 
-                sqs.delete_sqs_message(aft_management_session, sqs_message)
+                if not event_source:
+                    sqs.delete_sqs_message(aft_management_session, sqs_message)
+
                 if not ct_request_is_valid:
                     logger.exception("CT Request is not valid")
                     raise RuntimeError("CT Request is not valid")
