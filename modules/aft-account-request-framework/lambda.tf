@@ -147,7 +147,7 @@ resource "aws_lambda_function" "aft_account_request_processor" {
   source_code_hash = var.request_framework_archive_hash
   memory_size      = 1024
   runtime          = var.lambda_runtime_python_version
-  timeout          = "300"
+  timeout          = "240"
   layers           = [var.aft_common_layer_arn]
 
   environment {
@@ -164,15 +164,11 @@ resource "aws_lambda_function" "aft_account_request_processor" {
       security_group_ids = tolist([aws_security_group.aft_vpc_default_sg[0].id])
     }
   }
-
 }
 
-resource "aws_lambda_permission" "aft_account_request_processor" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.aft_account_request_processor.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.aft_account_request_processor.arn
+resource "aws_lambda_event_source_mapping" "aft_account_request_processor" {
+  event_source_arn = aws_sqs_queue.aft_account_request.arn
+  function_name    = aws_lambda_function.aft_account_request_processor.function_name
 }
 
 #tfsec:ignore:aws-cloudwatch-log-group-customer-key
