@@ -282,9 +282,9 @@ module "aft_account_suspend_close" {
   cloudwatch_log_group_retention     = "1"
   aft_to_ct_cross_account_role_name  = local.aft_administrator_role_name
   ct_account_id                      = var.ct_management_account_id
-  ct_destination_ou                  = "" # Suspended OU
+  ct_destination_ou                  = data.aws_organizations_organizational_units.aft_suspended_ou.id # Suspended OU
   ct_root_ou_id                      = data.aws_organizations_organizational_units.aft_organization_root_ou.id
   aft-request-audit-table-stream-arn = "arn:aws:dynamodb:${var.ct_home_region}:${var.ct_management_account_id}:table/${module.aft_account_request_framework.request_audit_table_name}"
-  aft_kms_key_arn                    = module.aft_account_request_framework.aft_kms_key_id
+  aft_kms_key_arn                    = module.aft_account_request_framework.aft_kms_key_arn
   aft_enable_vpc                     = var.aft_enable_vpc
 }

@@ -35,3 +35,9 @@ data "aws_organizations_organizational_units" "aft_organization_root_ou" {
   provider  = aws.ct_management
   parent_id = data.aws_organizations_organization.aft_organization.roots[0].id
 }
+
+data "aws_organizations_organizational_units" "aft_suspended_ou" {
+  provider  = aws.ct_management
+  name      = "Suspended"
+  parent_id = data.aws_organizations_organization.aft_organization.roots[0].id
+}
