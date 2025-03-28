@@ -272,15 +272,19 @@ module "aft_ssm_parameters" {
   aft_metrics_reporting                                       = var.aft_metrics_reporting
 }
 
-# module "aft_account_suspend_close" {
-#   source = "github.com/jassoftltd/aft-account-suspend-close-solution"
-#
-#   cloudwatch_log_group_retention           = "1"
-#   aft_to_ct_cross_account_role_name        = local.aft_administrator_role_name
-#   ct_account_id                            = var.ct_management_account_id
-#   ct_destination_ou                        = "" # Suspended OU
-#   ct_root_ou_id                            = data.aws_organizations_organizational_units.aft_organization_root_ou.id
-#   aft-request-audit-table-stream-arn       = "arn:aws:dynamodb:${var.ct_home_region}:${var.ct_management_account_id}:table/${module.aft_account_request_framework.request_audit_table_name}"
-#   aft-request-audit-table-encrption-key-id = module.aft_account_request_framework.aft_kms_key_id
-#   aft_enable_vpc                           = var.aft_enable_vpc
-# }
+module "aft_account_suspend_close" {
+  source = "github.com/jassoftltd/aft-account-suspend-close-solution"
+
+  providers = {
+    aws = aws.aft_management
+  }
+
+  cloudwatch_log_group_retention           = "1"
+  aft_to_ct_cross_account_role_name        = local.aft_administrator_role_name
+  ct_account_id                            = var.ct_management_account_id
+  ct_destination_ou                        = "" # Suspended OU
+  ct_root_ou_id                            = data.aws_organizations_organizational_units.aft_organization_root_ou.id
+  aft-request-audit-table-stream-arn       = "arn:aws:dynamodb:${var.ct_home_region}:${var.ct_management_account_id}:table/${module.aft_account_request_framework.request_audit_table_name}"
+  aft-request-audit-table-encrption-key-id = module.aft_account_request_framework.aft_kms_key_id
+  aft_enable_vpc                           = var.aft_enable_vpc
+}
