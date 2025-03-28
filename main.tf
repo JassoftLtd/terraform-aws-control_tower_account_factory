@@ -276,7 +276,6 @@ module "aft_account_suspend_close" {
   source = "github.com/jassoftltd/aft-account-suspend-close-solution"
 
   cloudwatch_log_group_retention           = "1"
-  region                                   = var.ct_home_region
   aft_to_ct_cross_account_role_name        = local.aft_administrator_role_name
   ct_account_id                            = var.ct_management_account_id
   ct_destination_ou                        = "" # Suspended OU
