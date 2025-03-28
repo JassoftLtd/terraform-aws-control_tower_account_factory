@@ -26,3 +26,12 @@ data "aws_service" "home_region_validation" {
 
 data "aws_partition" "current" {
 }
+
+data "aws_organizations_organization" "aft_organization" {
+  provider = aws.ct_management
+}
+
+data "aws_organizations_organizational_units" "aft_organization_root_ou" {
+  provider  = aws.ct_management
+  parent_id = data.aws_organizations_organization.aft_organization.roots[0].id
+}
