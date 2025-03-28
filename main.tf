@@ -282,4 +282,5 @@ module "aft_account_suspend_close" {
   ct_root_ou_id                            = data.aws_organizations_organizational_units.aft_organization_root_ou.id
   aft-request-audit-table-stream-arn       = "arn:aws:dynamodb:${var.ct_home_region}:${var.ct_management_account_id}:table/${module.aft_account_request_framework.request_audit_table_name}"
   aft-request-audit-table-encrption-key-id = module.aft_account_request_framework.aft_kms_key_id
+  aft_enable_vpc                           = var.aft_enable_vpc
 }
