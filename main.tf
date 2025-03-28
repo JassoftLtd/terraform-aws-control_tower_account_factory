@@ -273,7 +273,7 @@ module "aft_ssm_parameters" {
 }
 
 module "aft_account_suspend_close" {
-  source = "git@github.com:jassoftltd/aft-account-suspend-close-solution.git"
+  source = "github.com/jassoftltd/aft-account-suspend-close-solution"
 
   cloudwatch_log_group_retention           = "1"
   region                                   = var.ct_home_region
