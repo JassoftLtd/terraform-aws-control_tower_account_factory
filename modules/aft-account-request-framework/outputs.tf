@@ -50,6 +50,9 @@ output "request_table_name" {
 output "request_audit_table_name" {
   value = aws_dynamodb_table.aft_request_audit.name
 }
+output "request_audit_table_stream_arn" {
+  value = aws_dynamodb_table.aft_request_audit.stream_arn
+}
 output "request_metadata_table_name" {
   value = aws_dynamodb_table.aft_request_metadata.name
 }
