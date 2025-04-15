@@ -34,6 +34,11 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
     new_image = event["dynamodb"]["NewImage"]
     account_email = new_image["control_tower_parameters"]["M"]["AccountEmail"]["S"]
+    ddb_event_name = new_image["ddb_event_name"]["S"]
+
+    # Only handle Removes
+    if ddb_event_name != "REMOVE":
+        return
 
     try:
         ct_management_session = auth.get_ct_management_session(
