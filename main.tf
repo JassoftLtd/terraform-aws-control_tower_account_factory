@@ -56,6 +56,8 @@ module "aft_account_request_framework" {
   request_framework_archive_hash              = module.packaging.request_framework_archive_hash
   lambda_runtime_python_version               = local.lambda_runtime_python_version
   backup_recovery_point_retention             = var.backup_recovery_point_retention
+  workloads_ou_id = var.workloads_ou_id
+  suspended_ou_id = var.suspended_ou_id
 }
 
 

@@ -29,6 +29,14 @@ variable "audit_account_id" {
   }
 }
 
+variable "workloads_ou_id" {
+  type = string
+}
+
+variable "suspended_ou_id" {
+  type = string
+}
+
 #########################################
 # General AFT Vars
 #########################################
