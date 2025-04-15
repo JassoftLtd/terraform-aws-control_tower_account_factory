@@ -280,8 +280,8 @@ module "aft_account_suspend_close" {
   }
 
   cloudwatch_log_group_retention     = "1"
-  aft_to_ct_cross_account_role_name  = local.aft_administrator_role_name
-  ct_account_id                      = var.aft_management_account_id
+  aft_to_ct_cross_account_role_name  = local.aft_execution_role_name
+  ct_account_id                      = var.ct_management_account_id
   ct_destination_ou                  = data.aws_organizations_organizational_unit.aft_suspended_ou.id # Suspended OU
   ct_root_ou_id                      = data.aws_organizations_organizational_units.aft_organization_root_ou.id
   aft-request-audit-table-stream-arn = module.aft_account_request_framework.request_audit_table_stream_arn
