@@ -69,3 +69,11 @@ variable "backup_recovery_point_retention" {
 variable "aft_enable_vpc" {
   type = bool
 }
+
+variable "workloads_ou_id" {
+  type = string
+}
+
+variable "suspended_ou_id" {
+  type = string
+}
