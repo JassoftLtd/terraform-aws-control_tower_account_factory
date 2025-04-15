@@ -12,7 +12,7 @@
             "Effect": "Allow",
 			"Action": [
 				"organizations:CloseAccount",
-				"organizations:MoveAccount",
+				"organizations:MoveAccount"
 			],
 			"Resource": [
 				"*"
@@ -54,7 +54,7 @@
                 "kms:Decrypt"
             ],
             "Resource" : [
-                "${aws_kms_key_aft_arn}",
+                "${aws_kms_key_aft_arn}"
             ]
         },
         {
