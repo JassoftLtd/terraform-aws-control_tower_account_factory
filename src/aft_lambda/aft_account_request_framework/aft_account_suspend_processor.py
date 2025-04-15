@@ -40,7 +40,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
         # Only handle Removes
         if ddb_event_name != "REMOVE":
-            context
+            continue
 
         try:
             ct_management_session = auth.get_ct_management_session(
