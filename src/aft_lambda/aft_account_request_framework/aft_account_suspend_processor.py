@@ -10,7 +10,7 @@ from boto3.dynamodb.conditions import Key
 
 from aft_common import notifications, sqs
 from aft_common.account_provisioning_framework import ProvisionRoles
-auth import AuthClient
+from aft_common.auth import AuthClient
 from aft_common.logger import configure_aft_logger
 from boto3.session import Session
 
