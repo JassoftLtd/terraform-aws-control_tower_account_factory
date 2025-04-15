@@ -51,18 +51,19 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
             dynamodb_client = ct_management_session.client("dynamodb")
 
             # Lookup account_id
-            dynamodb_response = dynamodb_client.query(
-                TableName="aft-request-metadata",
-                IndexName="emailIndex",
-                KeyConditionExpression=Key("email").eq(account_email)
+            paginator = organizations_client.get_paginator('list_accounts_for_parent')
+            accounts = paginator.paginate(
+                ParentId=workloads_ou
             )
 
-            if not dynamodb_response["Items"]:
-                print("Account metadata does not exist.")
-                print("Account was probably never created")
-                return
+            for page in accounts:
+                account_id = any( account['Id'] for account in page["Accounts"] if account['Email'] == account_email)
+                if account_id:
+                    break
 
-            account_id = dynamodb_response["Items"][0]["id"]
+            if not account_id:
+                raise Exception(f"Account {account_email} not found")
+
 
             # Stop resources
             # TODO: Work out how to stop the resources in the account
