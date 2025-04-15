@@ -22,6 +22,9 @@ else:
 configure_aft_logger()
 logger = logging.getLogger("aft")
 
+workloads_ou = os.getenv("WORKLOADS_OU")
+suspended_ou = os.getenv("SUSPENDED_OU")
+
 
 def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
     aft_management_session = Session()
@@ -29,74 +32,73 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
     print(f"Event {event}")
 
-    workloads_ou = os.getenv("WORKLOADS_OU")
-    suspended_ou = os.getenv("SUSPENDED_OU")
+    for record in event["Records"]:
 
-    new_image = event["dynamodb"]["NewImage"]
-    account_email = new_image["control_tower_parameters"]["M"]["AccountEmail"]["S"]
-    ddb_event_name = new_image["ddb_event_name"]["S"]
+        new_image = record["dynamodb"]["NewImage"]
+        account_email = new_image["control_tower_parameters"]["M"]["AccountEmail"]["S"]
+        ddb_event_name = new_image["ddb_event_name"]["S"]
 
-    # Only handle Removes
-    if ddb_event_name != "REMOVE":
-        return
+        # Only handle Removes
+        if ddb_event_name != "REMOVE":
+            context
 
-    try:
-        ct_management_session = auth.get_ct_management_session(
-            role_name=ProvisionRoles.SERVICE_ROLE_NAME
-        )
+        try:
+            ct_management_session = auth.get_ct_management_session(
+                role_name=ProvisionRoles.SERVICE_ROLE_NAME
+            )
 
-        organizations_client = ct_management_session.client("organizations")
-        dynamodb_client = ct_management_session.client("dynamodb")
+            organizations_client = ct_management_session.client("organizations")
+            dynamodb_client = ct_management_session.client("dynamodb")
 
-        # Lookup account_id
-        dynamodb_response = dynamodb_client.query(
-            TableName="aft-request-metadata",
-            IndexName="emailIndex",
-            KeyConditionExpression=Key("email").eq(account_email)
-        )
+            # Lookup account_id
+            dynamodb_response = dynamodb_client.query(
+                TableName="aft-request-metadata",
+                IndexName="emailIndex",
+                KeyConditionExpression=Key("email").eq(account_email)
+            )
 
-        if not dynamodb_response["Items"]:
-            print("Account metadata does not exist.")
-            print("Account was probably never created")
-            return
+            if not dynamodb_response["Items"]:
+                print("Account metadata does not exist.")
+                print("Account was probably never created")
+                return
 
-        account_id = dynamodb_response["Items"][0]["id"]
+            account_id = dynamodb_response["Items"][0]["id"]
 
-        # Stop resources
-        # TODO: Work out how to stop the resources in the account
+            # Stop resources
+            # TODO: Work out how to stop the resources in the account
 
-        # Close Account
-        print(f"Closing account: {account_id}")
-        organizations_client.close_account(
-            AccountId=account_id
-        )
+            # Close Account
+            print(f"Closing account: {account_id}")
+            organizations_client.close_account(
+                AccountId=account_id
+            )
 
-        print(f"Account Closed, Waiting 10 seconds...")
-        sleep(10)
+            print(f"Account Closed, Waiting 10 seconds...")
+            sleep(10)
 
-        # Move Account
-        print(f"Moving account: {account_id}")
+            # Move Account
+            print(f"Moving account: {account_id}")
 
-        organizations_client.move_account(
-            AccountId=account_id,
-            SourceParentId=workloads_ou,
-            DestinationParentId=suspended_ou,
-        )
+            organizations_client.move_account(
+                AccountId=account_id,
+                SourceParentId=workloads_ou,
+                DestinationParentId=suspended_ou,
+            )
 
-    except Exception as error:
-        notifications.send_lambda_failure_sns_message(
-            session=aft_management_session,
-            message=str(error),
-            context=context,
-            subject="AFT account suspend failed",
-        )
-        message = {
-            "FILE": __file__.split("/")[-1],
-            "METHOD": inspect.stack()[0][3],
-            "EXCEPTION": str(error),
-        }
-        logger.exception(message)
-        raise
+        except Exception as error:
+            notifications.send_lambda_failure_sns_message(
+                session=aft_management_session,
+                message=str(error),
+                context=context,
+                subject="AFT account suspend failed",
+            )
+            message = {
+                "FILE": __file__.split("/")[-1],
+                "METHOD": inspect.stack()[0][3],
+                "EXCEPTION": str(error),
+            }
+            logger.exception(message)
+            raise
 
 
 
