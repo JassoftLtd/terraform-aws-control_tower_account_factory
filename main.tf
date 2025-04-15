@@ -273,20 +273,3 @@ module "aft_ssm_parameters" {
   github_enterprise_url                                       = var.github_enterprise_url
   aft_metrics_reporting                                       = var.aft_metrics_reporting
 }
-
-module "aft_account_suspend_close" {
-  source = "github.com/jassoftltd/aft-account-suspend-close-solution"
-
-  providers = {
-    aws = aws.aft_management
-  }
-
-  cloudwatch_log_group_retention     = "1"
-  aft_to_ct_cross_account_role_name  = local.aft_execution_role_name
-  ct_account_id                      = var.ct_management_account_id
-  ct_destination_ou                  = data.aws_organizations_organizational_unit.aft_suspended_ou.id # Suspended OU
-  ct_root_ou_id                      = data.aws_organizations_organizational_units.aft_organization_root_ou.id
-  aft-request-audit-table-stream-arn = module.aft_account_request_framework.request_audit_table_stream_arn
-  aft_kms_key_arn                    = module.aft_account_request_framework.aft_kms_key_arn
-  aft_enable_vpc                     = var.aft_enable_vpc
-}
