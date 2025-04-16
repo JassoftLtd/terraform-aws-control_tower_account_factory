@@ -65,7 +65,26 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
 
             # Stop resources
-            # TODO: Work out how to stop the resources in the account
+            pipeline_name = f"{account_id}-customizations-destroy-pipeline"
+
+            codepipeline_client = ct_management_session.client("codepipeline")
+            pipeline_response = codepipeline_client.start_pipeline_execution(
+                name=pipeline_name
+            )
+
+            while True:
+                execution_response = codepipeline_client.get_pipeline_execution(
+                    pipelineName=pipeline_name,
+                    pipelineExecutionId=pipeline_response['pipelineExecutionId']
+                )
+                status = execution_response['pipelineExecution']['status']
+
+                if status == "Succeeded":
+                    break
+                elif status in ["Failed", "Cancelled", "Stopped", "Stopping", "Superseded"]:
+                    raise Exception(f"Pipeline execution {execution_response['pipelineExecution']['pipelineExecutionId']} failed with status {status}")
+                else:
+                    sleep(10)  # Wait 10 seconds and check again
 
             # Close Account
             print(f"Closing account: {account_id}")
