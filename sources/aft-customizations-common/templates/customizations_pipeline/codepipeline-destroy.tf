@@ -16,6 +16,18 @@ resource "aws_codepipeline" "aft_codestar_customizations_destroy_codepipeline" {
     }
   }
 
+  provisioner "local-exec" {
+    command = <<EOT
+aws codepipeline stop-pipeline-execution \
+  --pipeline-name ${aws_codepipeline.aft_codestar_customizations_destroy_codepipeline.name} \
+  --pipeline-execution-id $( \
+    aws codepipeline list-pipeline-executions \
+      --pipeline-name ${aws_codepipeline.aft_codestar_customizations_destroy_codepipeline.name} \
+    | jq -r '.pipelineExecutionSummaries[].pipelineExecutionId' \
+  )
+EOT
+  }
+
   ##############################################################
   # Source
   ##############################################################
