@@ -29,7 +29,7 @@ def get_pipeline_for_account(session: Session, account_id: str, destroy_pipeline
     for p in pipelines:
         name = p["name"]
         if name.startswith(account_id + "-"):
-            if (destroy_pipeline and name.contains("-destroy-")) or (not destroy_pipeline and not name.contains("-destroy-")):
+            if (destroy_pipeline and "-destroy-" in name) or (not destroy_pipeline and "-destroy-" not in  name):
                 pipeline_arn = (
                     f"arn:{utils.get_aws_partition(session)}:codepipeline:"
                     + current_region
