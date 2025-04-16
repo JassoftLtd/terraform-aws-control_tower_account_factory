@@ -48,7 +48,6 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
             )
 
             organizations_client = ct_management_session.client("organizations")
-            dynamodb_client = ct_management_session.client("dynamodb")
 
             # Lookup account_id
             paginator = organizations_client.get_paginator('list_accounts_for_parent')
