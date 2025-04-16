@@ -13,7 +13,7 @@ logger = logging.getLogger("aft")
 AFT_CUSTOMIZATIONS_PIPELINE_NAME_PATTERN = r"^\d\d\d\d\d\d\d\d\d\d\d\d-.*$"
 
 
-def get_pipeline_for_account(session: Session, account_id: str) -> str:
+def get_pipeline_for_account(session: Session, account_id: str, destroy_pipeline: bool=False) -> str:
     current_account = session.client("sts").get_caller_identity()["Account"]
     current_region = session.region_name
 
@@ -29,19 +29,20 @@ def get_pipeline_for_account(session: Session, account_id: str) -> str:
     for p in pipelines:
         name = p["name"]
         if name.startswith(account_id + "-"):
-            pipeline_arn = (
-                f"arn:{utils.get_aws_partition(session)}:codepipeline:"
-                + current_region
-                + ":"
-                + current_account
-                + ":"
-                + name
-            )
-            response = client.list_tags_for_resource(resourceArn=pipeline_arn)
-            for t in response["tags"]:
-                if t["key"] == "managed_by" and t["value"] == "AFT":
-                    pipeline_name: str = p["name"]
-                    return pipeline_name
+            if (destroy_pipeline and name.contains("-destroy-")) or (not destroy_pipeline and not name.contains("-destroy-")):
+                pipeline_arn = (
+                    f"arn:{utils.get_aws_partition(session)}:codepipeline:"
+                    + current_region
+                    + ":"
+                    + current_account
+                    + ":"
+                    + name
+                )
+                response = client.list_tags_for_resource(resourceArn=pipeline_arn)
+                for t in response["tags"]:
+                    if t["key"] == "managed_by" and t["value"] == "AFT":
+                        pipeline_name: str = p["name"]
+                        return pipeline_name
                     
     logger.warn("Pipelines for account id " + account_id + " was not found")
 
@@ -71,14 +72,15 @@ def pipeline_is_running(session: Session, name: str) -> bool:
         return False
 
 
-def execute_pipeline(session: Session, account_id: str) -> None:
+def execute_pipeline(session: Session, account_id: str, destroy_pipeline: bool=False) -> None:
     client = session.client("codepipeline")
-    name = get_pipeline_for_account(session, account_id)
+    name = get_pipeline_for_account(session, account_id, destroy_pipeline)
     if not pipeline_is_running(session, name):
         logger.info("Executing pipeline - " + name)
         response = client.start_pipeline_execution(name=name)
         sanitized_response = utils.sanitize_input_for_logging(response)
         logger.info(sanitized_response)
+        return response['pipelineExecutionId']
     else:
         logger.info("Pipeline is currently running")
 
@@ -134,12 +136,12 @@ def get_running_pipeline_count(session: Session, pipeline_names: List[str]) -> i
 
 
 def delete_customization_pipeline(
-    aft_management_session: Session, account_id: str
+    aft_management_session: Session, account_id: str, destroy_pipeline: bool=False
 ) -> None:
     client = aft_management_session.client("codepipeline")
 
     pipeline_name = get_pipeline_for_account(
-        session=aft_management_session, account_id=account_id
+        session=aft_management_session, account_id=account_id, destroy_pipeline=destroy_pipeline
     )
     if pipeline_name:
         if not pipeline_is_running(session=aft_management_session, name=pipeline_name):

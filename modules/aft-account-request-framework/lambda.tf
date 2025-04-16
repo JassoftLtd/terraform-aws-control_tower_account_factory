@@ -235,41 +235,6 @@ resource "aws_lambda_function" "aft_cleanup_resources" {
   timeout          = "300"
   layers           = [var.aft_common_layer_arn]
 
-  dynamic "vpc_config" {
-    for_each = var.aft_enable_vpc ? [1] : []
-
-    content {
-      subnet_ids         = tolist([aws_subnet.aft_vpc_private_subnet_01[0].id, aws_subnet.aft_vpc_private_subnet_02[0].id])
-      security_group_ids = tolist([aws_security_group.aft_vpc_default_sg[0].id])
-    }
-  }
-
-}
-
-#tfsec:ignore:aws-cloudwatch-log-group-customer-key
-resource "aws_cloudwatch_log_group" "aft_cleanup_resources" {
-  name              = "/aws/lambda/${aws_lambda_function.aft_cleanup_resources.function_name}"
-  retention_in_days = var.cloudwatch_log_group_retention
-}
-
-
-######## aft_account_suspend_action_trigger ########
-
-#tfsec:ignore:aws-lambda-enable-tracing
-resource "aws_lambda_function" "aft_account_suspend_action_trigger" {
-
-  filename      = var.request_framework_archive_path
-  function_name = "aft-account-suspend-action-trigger"
-  description   = "Receives trigger from DynamoDB aft-request-audit table and suspends accounts that are deleted"
-  role          = aws_iam_role.aft_account_suspend_action_trigger.arn
-  handler       = "aft_account_suspend_processor.lambda_handler"
-
-  source_code_hash = var.request_framework_archive_hash
-  memory_size      = 1024
-  runtime          = var.lambda_runtime_python_version
-  timeout          = 900
-  layers           = [var.aft_common_layer_arn]
-
   environment {
     variables = {
       WORKLOADS_OU = var.workloads_ou_id
@@ -288,16 +253,8 @@ resource "aws_lambda_function" "aft_account_suspend_action_trigger" {
 
 }
 
-resource "aws_lambda_event_source_mapping" "aft_account_suspend_action_trigger" {
-  event_source_arn       = aws_dynamodb_table.aft_request_audit.stream_arn
-  function_name          = aws_lambda_function.aft_account_suspend_action_trigger.arn
-  starting_position      = "LATEST"
-  batch_size             = 1
-  maximum_retry_attempts = 1
-}
-
 #tfsec:ignore:aws-cloudwatch-log-group-customer-key
-resource "aws_cloudwatch_log_group" "aft_account_suspend_action_trigger" {
-  name              = "/aws/lambda/${aws_lambda_function.aft_account_suspend_action_trigger.function_name}"
+resource "aws_cloudwatch_log_group" "aft_cleanup_resources" {
+  name              = "/aws/lambda/${aws_lambda_function.aft_cleanup_resources.function_name}"
   retention_in_days = var.cloudwatch_log_group_retention
 }

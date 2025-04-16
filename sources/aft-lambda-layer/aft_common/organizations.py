@@ -321,3 +321,17 @@ class OrganizationsAgent:
         logger.info(f"Account details: {aft_account_info}")
 
         return aft_account_info
+
+    def close_account(self, account_id: str) -> None:
+        logger.info(f"Closing account {account_id}")
+        self.orgs_client.close_account(
+            AccountId=account_id
+        )
+
+    def move_account(self, account_id: str, from_ou: str, to_ou: str) -> None:
+        logger.info(f"Moving account {account_id}")
+        self.orgs_client.move_account(
+            AccountId=account_id,
+            SourceParentId=from_ou,
+            DestinationParentId=to_ou,
+        )
