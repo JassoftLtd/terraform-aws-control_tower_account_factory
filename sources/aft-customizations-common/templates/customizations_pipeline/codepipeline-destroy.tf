@@ -101,7 +101,7 @@ resource "aws_codepipeline" "aft_codestar_customizations_destroy_codepipeline" {
       version         = "1"
       run_order       = "2"
       configuration = {
-        ProjectName = var.aft_account_customizations_terraform_codebuild_name
+        ProjectName = var.aft_account_customizations_destroy_terraform_codebuild_name
         EnvironmentVariables = jsonencode([
           {
             name  = "VENDED_ACCOUNT_ID",
