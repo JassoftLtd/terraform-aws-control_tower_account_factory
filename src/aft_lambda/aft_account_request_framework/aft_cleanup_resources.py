@@ -34,6 +34,8 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         auth = AuthClient()
         aft_management_session = auth.get_aft_management_session()
 
+        logger.info(f"Event: {event}")
+
         account_request = event["account_request"]
         account_email = account_request[
             "id"
