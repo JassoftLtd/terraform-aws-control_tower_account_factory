@@ -56,7 +56,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
             )
 
             for page in accounts:
-                account_id = any( account['Id'] for account in page["Accounts"] if account['Email'] == account_email)
+                account_id = next( account['Id'] for account in page["Accounts"] if account['Email'] == account_email)
                 if account_id:
                     break
 
