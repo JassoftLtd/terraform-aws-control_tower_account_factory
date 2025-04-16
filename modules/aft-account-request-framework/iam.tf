@@ -80,34 +80,6 @@ resource "aws_iam_role_policy" "aft_account_request_action_trigger" {
   })
 }
 
-######### aft_account_suspend_action_trigger #########
-
-resource "aws_iam_role" "aft_account_suspend_action_trigger" {
-  name               = "aft-lambda-account-suspend-action-trigger"
-  assume_role_policy = templatefile("${path.module}/iam/trust-policies/lambda.tpl", { none = "none" })
-}
-
-resource "aws_iam_role_policy_attachment" "aft_account_suspend_action_trigger" {
-  count      = length(local.lambda_managed_policies)
-  role       = aws_iam_role.aft_account_suspend_action_trigger.name
-  policy_arn = local.lambda_managed_policies[count.index]
-}
-
-resource "aws_iam_role_policy" "aft_account_suspend_action_trigger" {
-  name = "aft-account-suspend-action-trigger"
-  role = aws_iam_role.aft_account_suspend_action_trigger.id
-
-  policy = templatefile("${path.module}/iam/role-policies/lambda-account-suspend-action-trigger.tpl", {
-    data_aws_partition_current_partition                              = data.aws_partition.current.partition
-    data_aws_region_aft-management_name                               = data.aws_region.aft-management.name
-    data_aws_caller_identity_aft-management_account_id                = data.aws_caller_identity.aft-management.account_id
-    aws_sns_topic_aft_notifications_arn                               = aws_sns_topic.aft_notifications.arn
-    aws_sns_topic_aft_failure_notifications_arn                       = aws_sns_topic.aft_failure_notifications.arn
-    aws_dynamodb_table_aft-request-audit_name                         = aws_dynamodb_table.aft_request_audit.name
-    aws_kms_key_aft_arn                                               = aws_kms_key.aft.arn
-  })
-}
-
 ######### controltower_event_logger #########
 resource "aws_iam_role" "aft_controltower_event_logger" {
   name               = "aft-lambda-controltower-event-logger"
