@@ -65,6 +65,12 @@ variable "aft_account_customizations_terraform_codebuild_name" {
   default     = "aft-account-customizations-terraform"
 }
 
+variable "aft_account_customizations_destroy_terraform_codebuild_name" {
+  type        = string
+  description = "CodeBuild Project Name"
+  default     = "aft-account-customizations-destroy-terraform"
+}
+
 variable "aft_aws_customizations_api_helpers_codebuild_name" {
   type        = string
   description = "CodeBuild Project Name"

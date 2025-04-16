@@ -162,7 +162,7 @@ resource "aws_codebuild_project" "aft_account_customizations_destroy_terraform" 
   encryption_key = var.aft_kms_key_arn
 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type = "CODEPIPELINE"
   }
 
   environment {
@@ -189,7 +189,7 @@ resource "aws_codebuild_project" "aft_account_customizations_destroy_terraform" 
   }
 
   source {
-    type      = "NO_SOURCE"
+    type      = "CODEPIPELINE"
     buildspec = data.local_file.aft_account_customizations_destroy_terraform.content
   }
 
