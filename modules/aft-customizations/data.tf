@@ -26,6 +26,10 @@ data "local_file" "aft_account_customizations_terraform" {
   filename = "${path.module}/buildspecs/aft-account-customizations-terraform.yml"
 }
 
+data "local_file" "aft_account_customizations_destroy_terraform" {
+  filename = "${path.module}/buildspecs/aft-account-customizations-destroy-terraform.yml"
+}
+
 data "local_file" "aft_create_pipeline" {
   filename = "${path.module}/buildspecs/aft-create-pipeline.yml"
 }
