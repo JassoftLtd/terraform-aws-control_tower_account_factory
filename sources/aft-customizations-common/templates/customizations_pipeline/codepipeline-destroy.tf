@@ -1,7 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
-resource "aws_codepipeline" "aft_codestar_customizations_codepipeline" {
+resource "aws_codepipeline" "aft_codestar_customizations_destroy_codepipeline" {
   count    = local.vcs.is_codecommit ? 0 : 1
   name     = "${var.account_id}-customizations-destroy-pipeline"
   role_arn = data.aws_iam_role.aft_codepipeline_customizations_role.arn
