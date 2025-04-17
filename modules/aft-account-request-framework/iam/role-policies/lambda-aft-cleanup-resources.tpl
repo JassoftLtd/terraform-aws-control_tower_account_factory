@@ -17,9 +17,9 @@
                 "codepipeline:ListPipelineExecutions",
                 "codepipeline:ListPipelines",
                 "codepipeline:ListTagsForResource",
-                "codepipeline:GetPipelineExecution"
+                "codepipeline:GetPipelineExecution",
                 "codepipeline:DeletePipeline",
-                "codepipeline:StartPipelineExecution",
+                "codepipeline:StartPipelineExecution"
             ],
             "Resource": [
                 "arn:${data_aws_partition_current_partition}:codepipeline:${data_aws_region_aft-management_name}:${data_aws_caller_identity_aft-management_account_id}:*"
