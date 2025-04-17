@@ -62,7 +62,6 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         )
 
         if destroy_pipeline_name:
-
             pipeline_response = codepipeline_client.start_pipeline_execution(name=destroy_pipeline_name)
 
             sleep(10)
@@ -111,12 +110,16 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         logger.info(f"Account metadata record deleted")
 
         # Close Account
-        orgs_agent.close_account(
-            account_id=account_id
-        )
+        try:
+            orgs_agent.close_account(
+                account_id=account_id
+            )
 
-        print(f"Account Closed, Waiting 10 seconds...")
-        sleep(10)
+            print(f"Account Closed, Waiting 10 seconds...")
+            sleep(10)
+        except orgs_agent.service.exceptions.ConstraintViolationException as e:
+            logger.error(f"Close account failed: {e}")
+
 
         # Move Account
         orgs_agent.move_account(
