@@ -17,7 +17,7 @@
                 "codepipeline:ListPipelineExecutions",
                 "codepipeline:ListPipelines",
                 "codepipeline:ListTagsForResource",
-                "codepipeline:DeletePipeline"
+                "codepipeline:DeletePipeline",
                 "codepipeline:StartPipelineExecution"
             ],
             "Resource": [
