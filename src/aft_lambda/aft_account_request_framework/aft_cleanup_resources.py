@@ -118,7 +118,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
             print(f"Account Closed, Waiting 10 seconds...")
             sleep(10)
-        except botocore.errorfactory.ConstraintViolationException as e:
+        except Exception as e:
             logger.error(f"Close account failed: {e}")
 
 
