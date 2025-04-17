@@ -117,7 +117,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
             print(f"Account Closed, Waiting 10 seconds...")
             sleep(10)
-        except orgs_agent.service.exceptions.ConstraintViolationException as e:
+        except orgs_agent.client.exceptions.ConstraintViolationException as e:
             logger.error(f"Close account failed: {e}")
 
 
