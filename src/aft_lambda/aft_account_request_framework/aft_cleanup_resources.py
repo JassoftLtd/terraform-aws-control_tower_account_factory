@@ -8,6 +8,7 @@ from time import sleep
 from typing import TYPE_CHECKING, Any, Dict
 
 import aft_common.aft_utils as utils
+import botocore
 from aft_common import codepipeline, ddb
 from aft_common.auth import AuthClient
 from aft_common.constants import SSM_PARAM_AFT_DDB_META_TABLE
@@ -117,7 +118,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
             print(f"Account Closed, Waiting 10 seconds...")
             sleep(10)
-        except orgs_agent.client.exceptions.ConstraintViolationException as e:
+        except botocore.errorfactory.ConstraintViolationException as e:
             logger.error(f"Close account failed: {e}")
 
 
