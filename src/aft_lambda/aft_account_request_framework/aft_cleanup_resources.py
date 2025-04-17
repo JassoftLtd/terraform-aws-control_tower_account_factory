@@ -63,6 +63,8 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
 
         pipeline_response = codepipeline_client.start_pipeline_execution(name=pipeline_name)
 
+        sleep(10)
+
         while True:
             execution_response = codepipeline_client.get_pipeline_execution(
                 pipelineName=pipeline_name,
