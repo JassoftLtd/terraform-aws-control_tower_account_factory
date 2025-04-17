@@ -55,30 +55,32 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         logger.info(f"Destroying resources for account {account_email}")
         codepipeline_client = aft_management_session.client("codepipeline", config=utils.get_high_retry_botoconfig())
 
-        pipeline_name = codepipeline.get_pipeline_for_account(
+        destroy_pipeline_name = codepipeline.get_pipeline_for_account(
             session=aft_management_session,
             account_id=account_id,
             destroy_pipeline=True
         )
 
-        pipeline_response = codepipeline_client.start_pipeline_execution(name=pipeline_name)
+        if destroy_pipeline_name:
 
-        sleep(10)
+            pipeline_response = codepipeline_client.start_pipeline_execution(name=destroy_pipeline_name)
 
-        while True:
-            execution_response = codepipeline_client.get_pipeline_execution(
-                pipelineName=pipeline_name,
-                pipelineExecutionId=pipeline_response['pipelineExecutionId']
-            )
-            status = execution_response['pipelineExecution']['status']
+            sleep(10)
 
-            if status == "Succeeded":
-                break
-            elif status in ["Failed", "Cancelled", "Stopped", "Stopping", "Superseded"]:
-                raise Exception(
-                    f"Pipeline execution {execution_response['pipelineExecution']['pipelineExecutionId']} failed with status {status}")
-            else:
-                sleep(10)  # Wait 10 seconds and check again
+            while True:
+                execution_response = codepipeline_client.get_pipeline_execution(
+                    pipelineName=destroy_pipeline_name,
+                    pipelineExecutionId=pipeline_response['pipelineExecutionId']
+                )
+                status = execution_response['pipelineExecution']['status']
+
+                if status == "Succeeded":
+                    break
+                elif status in ["Failed", "Cancelled", "Stopped", "Stopping", "Superseded"]:
+                    raise Exception(
+                        f"Pipeline execution {execution_response['pipelineExecution']['pipelineExecutionId']} failed with status {status}")
+                else:
+                    sleep(10)  # Wait 10 seconds and check again
 
         # Delete pipelines
         logger.info(f"Deleting account customization pipeline for {account_id}")
