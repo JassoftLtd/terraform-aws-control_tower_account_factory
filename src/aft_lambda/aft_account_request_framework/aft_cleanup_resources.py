@@ -109,7 +109,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         logger.info(f"Account metadata record deleted")
 
         # Close Account
-        account_id.close_account(
+        orgs_agent.close_account(
             account_id=account_id
         )
 
@@ -117,7 +117,7 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> None:
         sleep(10)
 
         # Move Account
-        account_id.move_account(
+        orgs_agent.move_account(
             account_id=account_id,
             from_ou=workloads_ou,
             to_ou=suspended_ou,
